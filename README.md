@@ -39,10 +39,8 @@ Agree on a secret word beforehand and set it on both sides. Then even a reader
 who has guessed the trick — who knows to reach behind the emoji — finds only a
 scramble, unless they also know your word.
 
-Understand what this is, though: a whispered word between friends, not a lock and
-key. It will turn away a curious classmate reading over a shoulder. It will
-**not** withstand anyone determined and equipped. It hides; it does not truly
-encrypt. Keep nothing behind it that would wound you to have read aloud.
+It's a whispered word between friends, not a lock and key — just enough to keep
+a note yours while it passes through a crowded room.
 
 ## Will your messenger carry it?
 
