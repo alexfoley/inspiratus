@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Palimpsest</title>
+  <style>
+    :root {
+      --paper: #f4ecd8;
+      --paper-edge: #e7dcc0;
+      --ink: #2b2622;
+      --ink-soft: #6b6155;
+      --accent: #7c4a32;
+      --field: #fbf6e9;
+      --line: #d8cbac;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #1c1a17;
+        --paper-edge: #14120f;
+        --ink: #e9e0cf;
+        --ink-soft: #a89c86;
+        --accent: #d69a6f;
+        --field: #24211c;
+        --line: #3a352d;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: system-ui, "Segoe UI", sans-serif;
+      display: flex;
+      justify-content: center;
+    }
+    main {
+      width: 100%;
+      max-width: 34rem;
+      padding: 2.5rem 1rem 4rem;
+    }
+    header { text-align: center; margin-bottom: 2rem; }
+    h1 {
+      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      font-weight: 600;
+      letter-spacing: .02em;
+      font-size: 2.4rem;
+      margin: 0;
+    }
+    .tagline { color: var(--ink-soft); font-style: italic; margin-top: .4rem; }
+    .tabs { display: flex; gap: .5rem; justify-content: center; margin: 1.5rem 0 1.2rem; }
+    .tab {
+      font-family: "Iowan Old Style", Palatino, Georgia, serif;
+      font-size: 1.05rem;
+      letter-spacing: .04em;
+      padding: .5rem 1.3rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--ink-soft);
+      cursor: pointer;
+    }
+    .tab[aria-selected="true"] {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--paper);
+    }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    label { display: block; font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); margin: 1rem 0 .35rem; }
+    textarea, input[type="text"] {
+      width: 100%;
+      font: inherit;
+      color: var(--ink);
+      background: var(--field);
+      border: 1px solid var(--line);
+      border-radius: .5rem;
+      padding: .7rem .8rem;
+      resize: vertical;
+    }
+    textarea { min-height: 6rem; }
+    .emoji-row { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-top: .35rem; }
+    .emoji-pick {
+      font-size: 1.5rem;
+      line-height: 1;
+      padding: .3rem .45rem;
+      border: 1px solid transparent;
+      border-radius: .5rem;
+      background: transparent;
+      cursor: pointer;
+    }
+    .emoji-pick[aria-pressed="true"] { border-color: var(--accent); background: var(--field); }
+    .carrier-field { width: 4.5rem; text-align: center; font-size: 1.3rem; }
+    button.action {
+      margin-top: 1.4rem;
+      width: 100%;
+      font: inherit;
+      letter-spacing: .05em;
+      padding: .8rem;
+      border: none;
+      border-radius: .5rem;
+      background: var(--accent);
+      color: var(--paper);
+      cursor: pointer;
+    }
+    .output {
+      margin-top: 1.4rem;
+      background: var(--field);
+      border: 1px dashed var(--line);
+      border-radius: .5rem;
+      padding: 1.2rem;
+      text-align: center;
+      min-height: 3.5rem;
+      word-break: break-word;
+    }
+    .output .big { font-size: 2.6rem; line-height: 1.2; }
+    .reveal-out { text-align: left; font-size: 1.05rem; white-space: pre-wrap; }
+    .copy {
+      margin-top: .8rem;
+      font: inherit;
+      font-size: .85rem;
+      padding: .45rem 1rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .hint { color: var(--ink-soft); font-size: .82rem; margin-top: .4rem; }
+    footer { text-align: center; color: var(--ink-soft); font-size: .8rem; margin-top: 3rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Palimpsest</h1>
+      <div class="tagline">a note, folded beneath an emoji</div>
+    </header>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" id="tab-ariel" role="tab" aria-selected="true" aria-controls="panel-ariel">Ariel</button>
+      <button class="tab" id="tab-prospero" role="tab" aria-selected="false" aria-controls="panel-prospero">Prospero</button>
+    </div>
+
+    <!-- Ariel: hide -->
+    <section class="panel active" id="panel-ariel" role="tabpanel" aria-labelledby="tab-ariel">
+      <label for="note">Your note</label>
+      <textarea id="note" placeholder="Write something only they should read…"></textarea>
+
+      <label>Carrier</label>
+      <div class="emoji-row" id="emoji-row"></div>
+      <input type="text" id="carrier" class="carrier-field" value="😀" aria-label="Carrier emoji" />
+
+      <label for="ariel-pass">Shared secret <span style="text-transform:none;letter-spacing:0;">(optional)</span></label>
+      <input type="text" id="ariel-pass" placeholder="leave blank for none" />
+
+      <button class="action" id="seal-btn">Seal</button>
+
+      <div class="output" id="seal-out" aria-live="polite">
+        <span class="big" id="seal-emoji"></span>
+      </div>
+      <button class="copy" id="copy-btn" hidden>Copy</button>
+      <div class="hint">Looks like one emoji — but your whole note is hidden inside it. Paste it to your friend.</div>
+    </section>
+
+    <!-- Prospero: reveal -->
+    <section class="panel" id="panel-prospero" role="tabpanel" aria-labelledby="tab-prospero">
+      <label for="incoming">Paste what you received</label>
+      <textarea id="incoming" placeholder="Paste the emoji here…"></textarea>
+
+      <label for="prospero-pass">Shared secret <span style="text-transform:none;letter-spacing:0;">(optional)</span></label>
+      <input type="text" id="prospero-pass" placeholder="leave blank if none was used" />
+
+      <button class="action" id="reveal-btn">Reveal</button>
+
+      <div class="output reveal-out" id="reveal-out" aria-live="polite"></div>
+    </section>
+
+    <footer>Palimpsest · hidden in plain sight</footer>
+  </main>
+
+  <script src="codec.js"></script>
+  <script>
+    var CARRIERS = ['😀', '🌙', '🔥', '🌟', '🦊', '🍄', '🐝', '🌸', '🎈', '📮'];
+
+    // Tabs
+    var tabs = document.querySelectorAll('.tab');
+    function selectTab(name) {
+      tabs.forEach(function (t) {
+        var on = t.id === 'tab-' + name;
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      document.getElementById('panel-ariel').classList.toggle('active', name === 'ariel');
+      document.getElementById('panel-prospero').classList.toggle('active', name === 'prospero');
+    }
+    document.getElementById('tab-ariel').addEventListener('click', function () { selectTab('ariel'); });
+    document.getElementById('tab-prospero').addEventListener('click', function () { selectTab('prospero'); });
+
+    // Emoji picker
+    var carrierField = document.getElementById('carrier');
+    var row = document.getElementById('emoji-row');
+    function markPressed() {
+      row.querySelectorAll('.emoji-pick').forEach(function (b) {
+        b.setAttribute('aria-pressed', b.textContent === carrierField.value ? 'true' : 'false');
+      });
+    }
+    CARRIERS.forEach(function (emoji) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'emoji-pick';
+      b.textContent = emoji;
+      b.addEventListener('click', function () { carrierField.value = emoji; markPressed(); });
+      row.appendChild(b);
+    });
+    carrierField.addEventListener('input', markPressed);
+    markPressed();
+
+    // Seal
+    var sealEmoji = document.getElementById('seal-emoji');
+    var copyBtn = document.getElementById('copy-btn');
+    var lastSealed = '';
+    document.getElementById('seal-btn').addEventListener('click', function () {
+      var note = document.getElementById('note').value;
+      var carrier = carrierField.value || '😀';
+      var pass = document.getElementById('ariel-pass').value;
+      lastSealed = Palimpsest.seal(carrier, note, pass);
+      sealEmoji.textContent = lastSealed;
+      copyBtn.hidden = false;
+      copyBtn.textContent = 'Copy';
+    });
+    copyBtn.addEventListener('click', function () {
+      function done() { copyBtn.textContent = 'Copied ✓'; }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(lastSealed).then(done, fallback);
+      } else { fallback(); }
+      function fallback() {
+        var r = document.createRange();
+        r.selectNodeContents(sealEmoji);
+        var sel = window.getSelection();
+        sel.removeAllRanges(); sel.addRange(r);
+        try { document.execCommand('copy'); done(); } catch (e) { copyBtn.textContent = 'Copy failed'; }
+        sel.removeAllRanges();
+      }
+    });
+
+    // Reveal
+    document.getElementById('reveal-btn').addEventListener('click', function () {
+      var text = document.getElementById('incoming').value;
+      var pass = document.getElementById('prospero-pass').value;
+      var out = Palimpsest.reveal(text, pass);
+      var el = document.getElementById('reveal-out');
+      el.textContent = out === '' ? '(nothing hidden here)' : out;
+    });
+  </script>
+</body>
+</html>

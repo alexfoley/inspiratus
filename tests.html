@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Palimpsest — tests</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
+    .pass { color: #197b3a; } .fail { color: #b3261e; font-weight: 700; }
+    li { margin: .2rem 0; } code { background: #eee; padding: 0 .25rem; }
+  </style>
+</head>
+<body>
+  <h1>Palimpsest tests</h1>
+  <ul id="results"></ul>
+  <script src="codec.js"></script>
+  <script>
+    var results = document.getElementById('results');
+    var failures = 0;
+    function check(name, cond) {
+      var li = document.createElement('li');
+      li.className = cond ? 'pass' : 'fail';
+      li.textContent = (cond ? '✓ ' : '✗ ') + name;
+      results.appendChild(li);
+      if (!cond) failures++;
+    }
+    var P = window.Palimpsest;
+    check('ASCII round trip', P.reveal(P.seal('😀', 'meet me at noon')) === 'meet me at noon');
+    check('Unicode + emoji round trip', P.reveal(P.seal('🌙', 'café 秘密 🦊')) === 'café 秘密 🦊');
+    check('empty note yields bare carrier', P.seal('🔥', '') === '🔥' && P.reveal('🔥') === '');
+    check('surrounded by text', P.reveal('hi ' + P.seal('😀', 'secret') + ' bye') === 'secret');
+    check('no selectors -> empty', P.reveal('plain 😀') === '');
+    check('VS-carrying carrier ❤️ round trips', P.reveal(P.seal('❤️', 'ok')) === 'ok');
+    check('passphrase round trip', P.reveal(P.seal('😀', 'psst', 'tempest'), 'tempest') === 'psst');
+    check('wrong passphrase fails safely', P.reveal(P.seal('😀', 'psst', 'tempest'), 'nope') !== 'psst');
+    var summary = document.createElement('h2');
+    summary.className = failures === 0 ? 'pass' : 'fail';
+    summary.textContent = failures === 0 ? 'All tests passed' : (failures + ' test(s) failed');
+    document.body.appendChild(summary);
+  </script>
+</body>
+</html>
