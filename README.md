@@ -1,58 +1,64 @@
 # Palimpsest
 
-> *A palimpsest is a manuscript with older writing hidden beneath the new.
-> This one hides a note beneath an emoji.*
+> *A palimpsest is a manuscript scraped clean and written over — yet the older
+> hand still lingers beneath the new. Here, a message lingers beneath a smile.*
 
-Pass secret notes with a friend — like folding a paper note into a textbook.
-Write a note, pick an emoji, and Palimpsest hands you back an ordinary-looking
-emoji (`😀`) that secretly carries your whole message. Your friend pastes it in
-and reads it. It travels through normal chat apps as plain text.
+Every note we pass leaves the same trace a folded paper does inside a textbook:
+there, if you know to look; invisible if you don't. Palimpsest lets you and one
+other person write in that older hand. To everyone else, you sent an emoji. To
+them, you sent a paragraph.
 
-No installation, no accounts, no server. Just open `index.html`.
+Nothing to install. No account, no server, no trace on anyone's shelf. Open
+`index.html` and begin.
 
-## The two modes
+## Two spirits
 
-The interface has two tabs, named after *The Tempest*:
+The page keeps two tabs, both borrowed from *The Tempest*, and tells you nothing
+about which is which. That silence is deliberate — a friend who does not know
+the play must first work out the players.
 
-- **Ariel** — the invisible spirit who carries messages unseen. Use Ariel to
-  **hide** a note inside an emoji.
-- **Prospero** — the one who commands Ariel and reads what he carries. Use
-  Prospero to **reveal** a hidden note.
+- **Ariel** — the airy spirit who goes where the eye can't follow and carries
+  what he's given, unseen. Give Ariel your words; he folds them away.
+- **Prospero** — the one who summons Ariel home and reads back everything he
+  carried. Give Prospero the token you were sent; he unfolds it.
 
-(The page itself never tells you which is which — that's half the fun. Friends
-who don't know the trick have to work it out.)
+## Beneath the surface
 
-## How it works
+An alphabet exists that the eye was never meant to read — a set of marks that
+render as nothing at all, yet ride quietly wherever text can go. Palimpsest
+copies your note into that unseen alphabet and lets it trail, weightless and
+invisible, behind a single ordinary emoji. The emoji looks like any other. Only
+Prospero knows to reach behind it.
 
-Unicode has 256 invisible "variation selector" characters. Palimpsest turns
-your note into bytes, maps each byte to one invisible selector, and tucks them
-all behind a single visible emoji. They render as nothing, so the emoji looks
-completely ordinary — but Prospero can read them back.
+Because the whole message hides behind one glyph, length betrays nothing: a word
+and a whole letter wear the same face.
 
-## Shared secret (optional)
+## A word only the two of you know
 
-Set a passphrase on both sides and the note is scrambled so that even someone
-who knows the emoji trick can't read it without your word.
+Agree on a secret word beforehand and set it on both sides. Then even a reader
+who has guessed the trick — who knows to reach behind the emoji — finds only a
+scramble, unless they also know your word.
 
-**Honest caveat:** this is *passing-notes-in-class* strength — enough to foil a
-curious classmate, **not** a determined adversary. It's obfuscation, not
-encryption. Don't use it for anything that truly needs to stay secret.
+Understand what this is, though: a whispered word between friends, not a lock and
+key. It will turn away a curious classmate reading over a shoulder. It will
+**not** withstand anyone determined and equipped. It hides; it does not truly
+encrypt. Keep nothing behind it that would wound you to have read aloud.
 
-## Will it survive my chat app?
+## Will your messenger carry it?
 
-Usually. Messengers like iMessage, WhatsApp, Signal, Discord, Slack, and email
-preserve the hidden characters. A few platforms (some web forms, some social
-networks) strip or normalize them. **Send yourself a test first** on whatever
-channel you'll use.
+Most will. The quiet marks survive iMessage, WhatsApp, Signal, Discord, Slack,
+and ordinary email untouched. A few places sweep them away — certain web forms,
+some public squares of the internet. So send one to yourself first, by whatever
+road you mean to use, and make sure it arrives whole.
 
-## Run the tests
+## For the curious
 
 ```bash
-node --test          # codec unit tests (Node built-in, no dependencies)
+node --test          # the codec's own proofs (Node's built-in runner, no dependencies)
 ```
 
-Or open `tests.html` in a browser to watch the same checks run.
+Or open `tests.html` in a browser and watch the same proofs run.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE). Carry it wherever you like.
