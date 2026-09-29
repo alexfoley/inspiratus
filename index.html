@@ -152,7 +152,7 @@
       <div class="emoji-row" id="emoji-row"></div>
       <input type="text" id="carrier" class="carrier-field" value="😀" aria-label="Carrier emoji" />
 
-      <label for="ariel-pass">Shared secret <span style="text-transform:none;letter-spacing:0;">(optional)</span></label>
+      <label for="ariel-pass">Watchword <span style="text-transform:none;letter-spacing:0;">(optional)</span></label>
       <input type="text" id="ariel-pass" placeholder="leave blank for none" />
 
       <button class="action" id="seal-btn">Seal</button>
@@ -161,7 +161,7 @@
         <span class="big" id="seal-emoji"></span>
       </div>
       <button class="copy" id="copy-btn" hidden>Copy</button>
-      <div class="hint">Looks like one emoji — but your whole note is hidden inside it. Paste it to your friend.</div>
+      <div class="hint">Copy it and send it along.</div>
     </section>
 
     <!-- Prospero: reveal -->
@@ -169,8 +169,8 @@
       <label for="incoming">Paste what you received</label>
       <textarea id="incoming" placeholder="Paste the emoji here…"></textarea>
 
-      <label for="prospero-pass">Shared secret <span style="text-transform:none;letter-spacing:0;">(optional)</span></label>
-      <input type="text" id="prospero-pass" placeholder="leave blank if none was used" />
+      <label for="prospero-pass">Watchword <span style="text-transform:none;letter-spacing:0;">(optional)</span></label>
+      <input type="text" id="prospero-pass" placeholder="leave blank if none" />
 
       <button class="action" id="reveal-btn">Reveal</button>
 
@@ -224,7 +224,7 @@
       var note = document.getElementById('note').value;
       var carrier = carrierField.value || '😀';
       var pass = document.getElementById('ariel-pass').value;
-      lastSealed = Palimpsest.seal(carrier, note, pass);
+      lastSealed = Palimpsest.ariel(carrier, note, pass);
       sealEmoji.textContent = lastSealed;
       copyBtn.hidden = false;
       copyBtn.textContent = 'Copy';
@@ -248,7 +248,7 @@
     document.getElementById('reveal-btn').addEventListener('click', function () {
       var text = document.getElementById('incoming').value;
       var pass = document.getElementById('prospero-pass').value;
-      var out = Palimpsest.reveal(text, pass);
+      var out = Palimpsest.prospero(text, pass);
       var el = document.getElementById('reveal-out');
       el.textContent = out === '' ? '(nothing hidden here)' : out;
     });

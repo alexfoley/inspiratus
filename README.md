@@ -35,7 +35,7 @@ and a whole letter wear the same face.
 
 ## A word only the two of you know
 
-Agree on a secret word beforehand and set it on both sides. Then even a reader
+Agree on a watchword beforehand and set it on both sides. Then even a reader
 who has guessed the trick — who knows to reach behind the emoji — finds only a
 scramble, unless they also know your word.
 

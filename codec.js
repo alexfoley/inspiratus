@@ -35,7 +35,7 @@
 
   function keystream(passphrase, length) {
     var out = new Uint8Array(length);
-    if (!passphrase) return out; // all zeros -> XOR is identity (plain hiding)
+    if (!passphrase) return out; // all zeros -> XOR is a no-op
     var x = seedFromString(passphrase) || 0x9e3779b9; // avoid a zero PRNG state
     for (var i = 0; i < length; i++) {
       // xorshift32
@@ -47,16 +47,16 @@
     return out;
   }
 
-  // A payload is framed so reveal can locate exactly our note and ignore any
-  // stray variation selectors elsewhere in the pasted text (e.g. an ordinary
-  // ❤️ or ✌️, which secretly carry a U+FE0F selector). Header, in selector
-  // bytes: MAGIC (2) + payload length (4, little-endian). Header is plaintext;
-  // only the note bytes are scrambled by the passphrase.
+  // Each run is framed: MAGIC (2 bytes) + length (4 bytes, little-endian) +
+  // body. The marker lets prospero pick out the intended run and skip any
+  // lone selector that other characters carry (e.g. a U+FE0F on ❤️ or ✌️).
+  // The header bytes are unscrambled; the passphrase keystream applies only
+  // to the body.
   var MAGIC0 = 0x9e;
   var MAGIC1 = 0x3a;
   var HEADER_LEN = 6;
 
-  function seal(carrier, note, passphrase) {
+  function ariel(carrier, note, passphrase) {
     var base = stripSelectors(carrier != null ? String(carrier) : '');
     var data = new TextEncoder().encode(note != null ? note : '');
     var ks = keystream(passphrase, data.length);
@@ -72,11 +72,10 @@
     return out;
   }
 
-  function reveal(text, passphrase) {
+  function prospero(text, passphrase) {
     var str = text != null ? String(text) : '';
-    // Split the text into contiguous runs of selector bytes. Our payload is one
-    // such run, marked by MAGIC; a foreign emoji contributes only an isolated
-    // selector that never matches the 2-byte marker.
+    // Group the input into contiguous runs of selector bytes, then take the
+    // first run whose header matches MAGIC.
     var runs = [];
     var current = null;
     for (var ch of str) {
@@ -105,8 +104,8 @@
   }
 
   var api = {
-    seal: seal,
-    reveal: reveal,
+    ariel: ariel,
+    prospero: prospero,
     keystream: keystream,
     byteToCodePoint: byteToCodePoint,
     codePointToByte: codePointToByte,

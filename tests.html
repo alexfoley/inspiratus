@@ -25,19 +25,19 @@
       if (!cond) failures++;
     }
     var P = window.Palimpsest;
-    check('ASCII round trip', P.reveal(P.seal('😀', 'meet me at noon')) === 'meet me at noon');
-    check('Unicode + emoji round trip', P.reveal(P.seal('🌙', 'café 秘密 🦊')) === 'café 秘密 🦊');
+    check('ASCII round trip', P.prospero(P.ariel('😀', 'meet me at noon')) === 'meet me at noon');
+    check('Unicode + emoji round trip', P.prospero(P.ariel('🌙', 'café 秋の月 🦊')) === 'café 秋の月 🦊');
     check('empty note reveals empty; carrier stays visible', (function () {
-      var s = P.seal('🔥', '');
+      var s = P.ariel('🔥', '');
       var visible = Array.from(s).filter(function (ch) { return P.codePointToByte(ch.codePointAt(0)) < 0; }).join('');
-      return P.reveal(s) === '' && visible === '🔥' && P.reveal('🔥') === '';
+      return P.prospero(s) === '' && visible === '🔥' && P.prospero('🔥') === '';
     })());
-    check('surrounded by text', P.reveal('hi ' + P.seal('😀', 'secret') + ' bye') === 'secret');
-    check('foreign emoji selectors in surrounding text ignored', P.reveal('❤️ ' + P.seal('😀', 'hi') + ' ✌️') === 'hi');
-    check('no selectors -> empty', P.reveal('plain 😀') === '');
-    check('VS-carrying carrier ❤️ round trips', P.reveal(P.seal('❤️', 'ok')) === 'ok');
-    check('passphrase round trip', P.reveal(P.seal('😀', 'psst', 'tempest'), 'tempest') === 'psst');
-    check('wrong passphrase fails safely', P.reveal(P.seal('😀', 'psst', 'tempest'), 'nope') !== 'psst');
+    check('surrounded by text', P.prospero('hi ' + P.ariel('😀', 'the oak at dawn') + ' bye') === 'the oak at dawn');
+    check('foreign emoji selectors in surrounding text ignored', P.prospero('❤️ ' + P.ariel('😀', 'hi') + ' ✌️') === 'hi');
+    check('no selectors -> empty', P.prospero('plain 😀') === '');
+    check('VS-carrying carrier ❤️ round trips', P.prospero(P.ariel('❤️', 'ok')) === 'ok');
+    check('passphrase round trip', P.prospero(P.ariel('😀', 'psst', 'tempest'), 'tempest') === 'psst');
+    check('wrong passphrase fails safely', P.prospero(P.ariel('😀', 'psst', 'tempest'), 'nope') !== 'psst');
     var summary = document.createElement('h2');
     summary.className = failures === 0 ? 'pass' : 'fail';
     summary.textContent = failures === 0 ? 'All tests passed' : (failures + ' test(s) failed');
