@@ -49,3 +49,31 @@ test('sealed output starts with the carrier and payload is all selectors', () =>
     assert.ok(P.codePointToByte(cp) >= 0, 'every payload code point is a data selector');
   }
 });
+
+test('round-trips with a passphrase', () => {
+  const sealed = P.seal('😀', 'our secret', 'tempest');
+  assert.strictEqual(P.reveal(sealed, 'tempest'), 'our secret');
+});
+
+test('empty passphrase equals no passphrase', () => {
+  assert.strictEqual(P.seal('😀', 'plain', ''), P.seal('😀', 'plain'));
+});
+
+test('wrong passphrase does not recover the note and does not throw', () => {
+  const sealed = P.seal('😀', 'our secret', 'tempest');
+  let out;
+  assert.doesNotThrow(() => { out = P.reveal(sealed, 'wrong'); });
+  assert.notStrictEqual(out, 'our secret');
+});
+
+test('keystream is all zeros when passphrase is empty', () => {
+  const ks = P.keystream('', 8);
+  assert.deepStrictEqual(Array.from(ks), [0, 0, 0, 0, 0, 0, 0, 0]);
+});
+
+test('keystream is deterministic for a given passphrase', () => {
+  assert.deepStrictEqual(
+    Array.from(P.keystream('tempest', 16)),
+    Array.from(P.keystream('tempest', 16))
+  );
+});
