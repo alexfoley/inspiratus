@@ -27,8 +27,13 @@
     var P = window.Palimpsest;
     check('ASCII round trip', P.reveal(P.seal('😀', 'meet me at noon')) === 'meet me at noon');
     check('Unicode + emoji round trip', P.reveal(P.seal('🌙', 'café 秘密 🦊')) === 'café 秘密 🦊');
-    check('empty note yields bare carrier', P.seal('🔥', '') === '🔥' && P.reveal('🔥') === '');
+    check('empty note reveals empty; carrier stays visible', (function () {
+      var s = P.seal('🔥', '');
+      var visible = Array.from(s).filter(function (ch) { return P.codePointToByte(ch.codePointAt(0)) < 0; }).join('');
+      return P.reveal(s) === '' && visible === '🔥' && P.reveal('🔥') === '';
+    })());
     check('surrounded by text', P.reveal('hi ' + P.seal('😀', 'secret') + ' bye') === 'secret');
+    check('foreign emoji selectors in surrounding text ignored', P.reveal('❤️ ' + P.seal('😀', 'hi') + ' ✌️') === 'hi');
     check('no selectors -> empty', P.reveal('plain 😀') === '');
     check('VS-carrying carrier ❤️ round trips', P.reveal(P.seal('❤️', 'ok')) === 'ok');
     check('passphrase round trip', P.reveal(P.seal('😀', 'psst', 'tempest'), 'tempest') === 'psst');

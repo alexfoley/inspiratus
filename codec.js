@@ -47,28 +47,61 @@
     return out;
   }
 
+  // A payload is framed so reveal can locate exactly our note and ignore any
+  // stray variation selectors elsewhere in the pasted text (e.g. an ordinary
+  // ❤️ or ✌️, which secretly carry a U+FE0F selector). Header, in selector
+  // bytes: MAGIC (2) + payload length (4, little-endian). Header is plaintext;
+  // only the note bytes are scrambled by the passphrase.
+  var MAGIC0 = 0x9e;
+  var MAGIC1 = 0x3a;
+  var HEADER_LEN = 6;
+
   function seal(carrier, note, passphrase) {
     var base = stripSelectors(carrier != null ? String(carrier) : '');
-    var bytes = new TextEncoder().encode(note != null ? note : '');
-    var ks = keystream(passphrase, bytes.length);
+    var data = new TextEncoder().encode(note != null ? note : '');
+    var ks = keystream(passphrase, data.length);
+    var n = data.length;
+    var header = [MAGIC0, MAGIC1, n & 0xff, (n >>> 8) & 0xff, (n >>> 16) & 0xff, (n >>> 24) & 0xff];
     var out = base;
-    for (var i = 0; i < bytes.length; i++) {
-      out += String.fromCodePoint(byteToCodePoint((bytes[i] ^ ks[i]) & 0xff));
+    for (var h = 0; h < header.length; h++) {
+      out += String.fromCodePoint(byteToCodePoint(header[h]));
+    }
+    for (var i = 0; i < data.length; i++) {
+      out += String.fromCodePoint(byteToCodePoint((data[i] ^ ks[i]) & 0xff));
     }
     return out;
   }
 
   function reveal(text, passphrase) {
-    var bytes = [];
     var str = text != null ? String(text) : '';
+    // Split the text into contiguous runs of selector bytes. Our payload is one
+    // such run, marked by MAGIC; a foreign emoji contributes only an isolated
+    // selector that never matches the 2-byte marker.
+    var runs = [];
+    var current = null;
     for (var ch of str) {
       var b = codePointToByte(ch.codePointAt(0));
-      if (b >= 0) bytes.push(b);
+      if (b >= 0) {
+        if (!current) { current = []; runs.push(current); }
+        current.push(b);
+      } else {
+        current = null;
+      }
     }
-    var arr = new Uint8Array(bytes);
-    var ks = keystream(passphrase, arr.length);
-    for (var i = 0; i < arr.length; i++) arr[i] = (arr[i] ^ ks[i]) & 0xff;
-    return new TextDecoder().decode(arr);
+    for (var r = 0; r < runs.length; r++) {
+      var run = runs[r];
+      if (run.length >= HEADER_LEN && run[0] === MAGIC0 && run[1] === MAGIC1) {
+        var len = (run[2] | (run[3] << 8) | (run[4] << 16) | (run[5] << 24)) >>> 0;
+        if (run.length >= HEADER_LEN + len) {
+          var arr = new Uint8Array(len);
+          for (var k = 0; k < len; k++) arr[k] = run[HEADER_LEN + k];
+          var ks = keystream(passphrase, len);
+          for (var m = 0; m < len; m++) arr[m] = (arr[m] ^ ks[m]) & 0xff;
+          return new TextDecoder().decode(arr);
+        }
+      }
+    }
+    return '';
   }
 
   var api = {

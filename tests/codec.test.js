@@ -13,10 +13,14 @@ test('round-trips multi-byte Unicode and emoji in the note', () => {
   assert.strictEqual(P.reveal(P.seal('🌙', note)), note);
 });
 
-test('round-trips an empty note (carrier only)', () => {
+test('round-trips an empty note; sealed output shows only the carrier', () => {
   const sealed = P.seal('🔥', '');
-  assert.strictEqual(sealed, '🔥');
   assert.strictEqual(P.reveal(sealed), '');
+  // The framing header is invisible, so the only visible character is the carrier.
+  const visible = Array.from(sealed)
+    .filter((ch) => P.codePointToByte(ch.codePointAt(0)) < 0)
+    .join('');
+  assert.strictEqual(visible, '🔥');
 });
 
 test('round-trips a long note', () => {
@@ -76,4 +80,11 @@ test('keystream is deterministic for a given passphrase', () => {
     Array.from(P.keystream('tempest', 16)),
     Array.from(P.keystream('tempest', 16))
   );
+});
+
+test('reveal ignores foreign emoji variation selectors in surrounding text', () => {
+  const sealed = P.seal('😀', 'hi');
+  assert.strictEqual(P.reveal('look ❤️ ' + sealed), 'hi');
+  assert.strictEqual(P.reveal(sealed + ' ✌️'), 'hi');
+  assert.strictEqual(P.reveal('❤️ ' + sealed + ' 1️⃣'), 'hi');
 });
