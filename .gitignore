@@ -2,3 +2,7 @@
 
 node_modules/
 .DS_Store
+
+# Kept local-only: design notes and the build workspace
+docs/
+.superpowers/
